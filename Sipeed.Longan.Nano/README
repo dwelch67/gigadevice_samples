@@ -51,4 +51,10 @@ button, and it will run your application.
 This means we can be less paranoid about trying things because we can
 try again without our application getting in the way.
 
+baremetal is 99% reading and maybe 1% coding.  The reader is expected
+to look at this easy to read code, examine the registers in the
+documentation to see what the code is doing, rarely is there a reason
+to explain the code as the documentation for that register takes
+care of it.
+
 Start with blinker01

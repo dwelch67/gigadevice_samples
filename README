@@ -20,3 +20,91 @@ applications."
 
 Over time if I acquire other GigaDevice based boards I will add them
 to this repository.
+
+
+Eventually/quickly a UART solution will be something you want to have.
+This is NOT RS232C levels this is 3.3V levels so a usb uart solution
+is what you want, FTDI breakout boards are ideal, but with the
+raspberry pi there are also cables with the FTDI part buried in
+the connector.  Be careful with these as the rx/tx is not obvious
+you dont want to connect TX to TX and possibly burn up a part,  I
+prefer the FTDI breakout boards (3.3V not the 5V boards or get one
+with a jumper and set it on 3.3V).  Some can be had on ebay or elsewhere
+for a couple of bucks, if you are willing to gamble on ebay from
+overseas, I was lucky for years but that has gone away I have not
+had success in a while.  (they send an empty envelope, ebay is satisfied
+because a tracking number shows delivery)
+
+The adafruit/sparkfun links tend to be solid for years but no link
+lasts forever these links may be bad at some point
+
+This works no soldering required
+https://www.adafruit.com/product/954
+This is closer to ideal as you can use it for uart or jtag or other
+but this one soldering is required
+https://www.adafruit.com/product/2264
+
+The arduino ones tend to have connectors, have to be careful to get
+the 3.3V ones NOT the 5V ones.
+
+https://www.sparkfun.com/products/9873
+https://www.sparkfun.com/products/15096
+https://www.sparkfun.com/products/14050
+https://www.sparkfun.com/products/9873
+
+FTDI parts are expensive that is probably why the non-FTDI ones are
+less expensive.  Even with some of these breakouts you can get at
+more of the FTDI features as desired.  The benefit of these is that
+you dont need to solder just need some jumper wires which sparkfun
+and adafruit both carry (as well as ebay).
+
+Get the right sex, the Sipeed board has male pins on the board so
+one end needs to be female, many of the arduino ones the breakout
+is female so you need a male/female
+https://www.sparkfun.com/products/9385
+With the $2 ebay ones a female female is desired.
+https://www.sparkfun.com/products/9389
+
+Sparkfun and others carry a larger count assorted pack.
+
+Note that adafruit in general but many of the above products can be
+had from Amazon for similar prices but without the high shipping cost
+I tend to buy a number of things at the same time to spread out the
+shipping cost ($4 item plus $7 shipping just hurts but 4 $4 items at
+ $7 shipping hurts less)
+
+The day I wrote this this was $14.95 at adafruit, shipping there is
+usually around $7
+https://www.adafruit.com/product/2264
+Same board at amazon $15.88, free shipping with prime.
+
+When buying boards like the Sipeed one I often buy two at least in part
+to spread out the shipping cost, but also in case I brick one, with
+decades of experience you still brick things from time to time or
+let the smoke out.
+
+It is very much worth learning to solder, learing to solder pins on
+breakout boards is a good starting point.
+
+Ideally you want to use the same computer to power the mcu board and
+the uart solution, you can cheat and not need a ground, but also you
+wont blow things up.
+
+Your best bet for starting out is the raspberry pi cable, one with
+the four separate female connectors, just have to be careful to
+figure out which one is RX.  Assume there is no color coding standard
+as each vendor of these uses different colors.
+
+Pro tip, for setting up the dumb terminal program on your development
+machine (minicom, teraterm, etc) use a paperclip or something like
+that as a jumper wire between RX and TX on the host side (not using
+the mcu board at all at this point).  If you cannot type something
+and see it echo back, then remove the jumper and not see it echo back
+then replace the jumper and see it echo back, you are not read to
+connect to the mcu.
+
+NOTE:
+
+The TX on one side connects to the RX on the other.  If only wanting
+to see uart output from the mcu then you want the mcu side TX connected
+to the usb uart RX.

@@ -16,6 +16,9 @@ between led state changes.
 16million/8 = 2 million.  And supposedly the mtime timer is sysclk/4
 so that makes 8MHz.  Which is what is found in the documentation, the
 
-Internal 8 MHz RC oscillator (IRC8M)
 
-Which is what we would assume we are starting up on anyway.
+Internal 8M RC oscillators (IRC8M)
+
+The internal 8M RC oscillator, IRC8M, has a fixed frequency of 8 MHz
+and is the default clock source selection for the CPU when the device
+is powered up.
