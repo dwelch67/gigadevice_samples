@@ -1,0 +1,13 @@
+
+See higher level README files for more information on this product.
+
+PA9  USART0_TX
+PA10 USART0_RX
+
+These are part of the pins at the end of the board opposite the USB-C
+connector.  See top level README for information on finding usb uart
+boards or cables.  Most uart examples you only need TX this one
+demonstrates RX as well.
+
+This example can be used as a skeleton for internal 8MHz clocked
+projects.
