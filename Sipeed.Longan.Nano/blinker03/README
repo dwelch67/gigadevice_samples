@@ -1,0 +1,55 @@
+
+See higher level README files for more information on this product.
+
+Was hoping to not need to use the uart quite so soon, but its good
+to have it available.  My development went blinker01, blinker02,
+uart01, uart02, blinker03.
+
+The key here is
+
+Prescaler
+
+The prescaler can divide the timer clock (TIMER_CK) to a counter clock
+(PSC_CLK) by any factor ranging from 1 to 65536. It is controlled by
+prescaler register (TIMERx_PSC) which can be changed ongoing, but it is
+adopted at the next update event.
+
+    PUT32(TIMER5_PSC ,0xFFFF);
+    PUT32(TIMER5_CAR ,0xFFFF);
+    PUT32(TIMER5_CNT ,0xFFFF);
+    PUT32(TIMER5_CTL0,0x0001);
+
+So when we start the counter (CEN), the prescaler is zero, I dont
+know how to fix that on enable.  It runs at the CK_TIMER rate until it
+hits CAR, causing an update event, which sets the interrupt flag if
+not blocked (interrupt doesnt actually hit the processor there are more
+enables near the processor that you have to use) and that that point
+the prescaler is loaded.
+
+So by setting CNT to match CAR it immediately (next tick) causes an
+event loading the prescaler.
+
+With a CAR of 0xFFFF it is just a free running 16 bit counter.
+
+There are two examples here, one uses the free running timer the other
+uses the interrupt flag.
+
+    //8000000 = 0x7A1200
+    //0x7A1200 / 0x200 = 0x3D09
+
+    PUT32(TIMER5_PSC ,0x200-1);
+    PUT32(TIMER5_CAR ,0x3D09-1);
+    PUT32(TIMER5_CNT ,0x3D09-1);
+    PUT32(TIMER5_CTL0,0x0001);
+    PUT32(TIMER5_INTF,0);
+
+This counts to 8,000,000, at 8,000,000MHz this means one event/flag
+per second.  It uses the prescaler to divide by 512 then counts to
+0x3D09 ticks.  As above setting the CNT to CAR causes an event right
+away so can immediately after starting clear the flag (technically
+there is a race condition here, a delay is probably best, but this
+happens to work).
+
+As written the led turns on/off 4 times at faster than a second between
+state changes (8000000/0x10000/64 = 1.9 or half a second), then into
+the one second per state change code.
