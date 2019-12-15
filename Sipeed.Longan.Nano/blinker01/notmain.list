@@ -1,0 +1,94 @@
+
+notmain.elf:     file format elf32-littleriscv
+
+
+Disassembly of section .text:
+
+08000000 <_start>:
+ 8000000:	20001137          	lui	x2,0x20001
+ 8000004:	010000ef          	jal	x1,8000014 <notmain>
+ 8000008:	a001                	j	8000008 <_start+0x8>
+
+0800000a <dummy>:
+ 800000a:	8082                	ret
+
+0800000c <PUT32>:
+ 800000c:	c10c                	sw	x11,0(x10)
+ 800000e:	8082                	ret
+
+08000010 <GET32>:
+ 8000010:	4108                	lw	x10,0(x10)
+ 8000012:	8082                	ret
+
+08000014 <notmain>:
+ 8000014:	1141                	addi	x2,x2,-16
+ 8000016:	c422                	sw	x8,8(x2)
+ 8000018:	40021437          	lui	x8,0x40021
+ 800001c:	01840513          	addi	x10,x8,24 # 40021018 <notmain+0x38021004>
+ 8000020:	c606                	sw	x1,12(x2)
+ 8000022:	c226                	sw	x9,4(x2)
+ 8000024:	c04a                	sw	x18,0(x2)
+ 8000026:	37ed                	jal	8000010 <GET32>
+ 8000028:	01056593          	ori	x11,x10,16
+ 800002c:	01840513          	addi	x10,x8,24
+ 8000030:	3ff1                	jal	800000c <PUT32>
+ 8000032:	40011937          	lui	x18,0x40011
+ 8000036:	00490513          	addi	x10,x18,4 # 40011004 <notmain+0x38010ff0>
+ 800003a:	3fd9                	jal	8000010 <GET32>
+ 800003c:	ff1007b7          	lui	x15,0xff100
+ 8000040:	17fd                	addi	x15,x15,-1
+ 8000042:	8fe9                	and	x15,x15,x10
+ 8000044:	001005b7          	lui	x11,0x100
+ 8000048:	00490513          	addi	x10,x18,4
+ 800004c:	8ddd                	or	x11,x11,x15
+ 800004e:	64e1                	lui	x9,0x18
+ 8000050:	3f75                	jal	800000c <PUT32>
+ 8000052:	0941                	addi	x18,x18,16
+ 8000054:	6a048493          	addi	x9,x9,1696 # 186a0 <_start-0x7fe7960>
+ 8000058:	6589                	lui	x11,0x2
+ 800005a:	854a                	mv	x10,x18
+ 800005c:	3f45                	jal	800000c <PUT32>
+ 800005e:	4401                	li	x8,0
+ 8000060:	8522                	mv	x10,x8
+ 8000062:	0405                	addi	x8,x8,1
+ 8000064:	375d                	jal	800000a <dummy>
+ 8000066:	fe941de3          	bne	x8,x9,8000060 <notmain+0x4c>
+ 800006a:	200005b7          	lui	x11,0x20000
+ 800006e:	854a                	mv	x10,x18
+ 8000070:	3f71                	jal	800000c <PUT32>
+ 8000072:	4401                	li	x8,0
+ 8000074:	8522                	mv	x10,x8
+ 8000076:	0405                	addi	x8,x8,1
+ 8000078:	3f49                	jal	800000a <dummy>
+ 800007a:	fe941de3          	bne	x8,x9,8000074 <notmain+0x60>
+ 800007e:	bfe9                	j	8000058 <notmain+0x44>
+
+Disassembly of section .riscv.attributes:
+
+00000000 <.riscv.attributes>:
+   0:	2041                	jal	80 <_start-0x7ffff80>
+   2:	0000                	unimp
+   4:	7200                	flw	f8,32(x12)
+   6:	7369                	lui	x6,0xffffa
+   8:	01007663          	bgeu	x0,x16,14 <_start-0x7ffffec>
+   c:	0016                	c.slli	x0,0x5
+   e:	0000                	unimp
+  10:	1004                	addi	x9,x2,32
+  12:	7205                	lui	x4,0xfffe1
+  14:	3376                	fld	f6,376(x2)
+  16:	6932                	flw	f18,12(x2)
+  18:	7032                	flw	f0,44(x2)
+  1a:	5f30                	lw	x12,120(x14)
+  1c:	30703263          	0x30703263
+	...
+
+Disassembly of section .comment:
+
+00000000 <.comment>:
+   0:	3a434347          	fmsub.d	f6,f6,f4,f7,rmm
+   4:	2820                	fld	f8,80(x8)
+   6:	29554e47          	fmsub.s	f28,f10,f21,f5,rmm
+   a:	3920                	fld	f8,112(x10)
+   c:	322e                	fld	f4,232(x2)
+   e:	302e                	fld	f0,232(x2)
+	...

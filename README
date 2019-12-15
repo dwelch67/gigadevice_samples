@@ -1,0 +1,22 @@
+
+I recently purchased a
+
+Sipeed Longan Nano - RISC-V GD32VF103CBT6 Development Board
+
+So the board appears to be from seeed.  The MCU from GigaDevice
+and from the github page
+
+https://github.com/SeeedDocument/Sipeed-Longan-Nano
+
+I assume that GigaDevice got their RISC-V core from Nuclei called
+a Bumblebee.
+
+"The GD32VF103 MCU series adopts the new Bumblebee processor core based
+on the open source RISC-V instruction set architecture. It is jointly
+developed by GigaDevice and China’s leading RISC-V processor core IP
+and solution manufacturer Nuclei System Technology, offering a
+commercial RISC-V processor core for IoT and ultra-low power
+applications."
+
+Over time if I acquire other GigaDevice based boards I will add them
+to this repository.

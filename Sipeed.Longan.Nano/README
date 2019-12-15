@@ -1,0 +1,54 @@
+
+Sipeed Longan Nano - RISC-V GD32VF103CBT6 Development Board
+
+This board is based around a GigaDevice GD32VF103CBT6
+
+GD32VF103CBT6 128KB flash, LQFP48
+
+For now I found documentation here:
+
+https://github.com/SeeedDocument/Sipeed-Longan-Nano/
+
+There is a bootloader that supports dfu, this makes it very easy
+to develop for this board.
+
+Press and hold the boot0 button while you press and release the
+reset button then release boot0.
+
+dfu-util -l
+dfu-util 0.8
+
+Copyright 2005-2009 Weston Schmidt, Harald Welte and OpenMoko Inc.
+Copyright 2010-2014 Tormod Volden and Stefan Schmidt
+This program is Free Software and has ABSOLUTELY NO WARRANTY
+Please report bugs to dfu-util@lists.gnumonks.org
+
+Found DFU: [28e9:0189] ver=1000, devnum=16, cfg=1, intf=0, alt=1, name="@Option Bytes  /0x1FFFF800/01*016 g", serial="??"
+Found DFU: [28e9:0189] ver=1000, devnum=16, cfg=1, intf=0, alt=0, name="@Internal Flash  /0x08000000/512*002Kg", serial="??"
+
+This matches with the chip documentation the flash is at address
+0x08000000 and ram at 0x20000000.
+
+MEMORY
+{
+    rom : ORIGIN = 0x08000000, LENGTH = 0x4000
+    ram : ORIGIN = 0x20000000, LENGTH = 0x4000
+}
+SECTIONS
+{
+    .text : { *(.text*) } > rom
+    .rodata : { *(.rodata*) } > rom
+    .bss : { *(.bss*) } > ram
+}
+
+To program the flash with your application:
+
+dfu-util -a 0 -D notmain.bin -s 0x08000000
+
+Then press and release the reset button without touching the boot0
+button, and it will run your application.
+
+This means we can be less paranoid about trying things because we can
+try again without our application getting in the way.
+
+Start with blinker01

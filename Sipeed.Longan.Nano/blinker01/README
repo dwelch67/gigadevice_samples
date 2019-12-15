@@ -1,0 +1,319 @@
+
+See higher level README files for more information on this product.
+
+So from googling the board has an RGB led with
+
+PC13 red
+PA1  green
+PA2  blue
+
+This very simple example enables the clock to GPIOC, makes Port C13
+an output, and blinks it burning time using a counting loop.
+
+Being the first example, some baremetal basics.
+
+The toolchain I use I build from GNU sources.  In the tools
+subdirectory of the top level directory is a build script.  I run
+linux and there are some packages you may have to install in order
+to get this to build, but in the linux world that is somewhat trivial.
+
+The doc subdirectory of the top level directory contains copies of
+the riscv specifications.  RISC-V is an instruction set and architecture
+that one would need to conform to to be considred RISC-V compatibile.
+
+There are different levels/layers of the instruction set starting with
+the base RV32I.  These are all 32 bit sized instructions.  One could
+stop there and have a quite usable processor.  The beginning of
+this program as built/compiled at the time of this writing with the
+toolchain used at the time of this writing looks like this:
+
+Disassembly of section .text:
+
+08000000 <_start>:
+ 8000000:   20001137            lui x2,0x20001
+ 8000004:   01c000ef            jal x1,8000020 <notmain>
+ 8000008:   0000006f            j   8000008 <_start+0x8>
+
+0800000c <dummy>:
+ 800000c:   00008067            ret
+
+08000010 <PUT32>:
+ 8000010:   00b52023            sw  x11,0(x10)
+ 8000014:   00008067            ret
+
+08000018 <GET32>:
+ 8000018:   00052503            lw  x10,0(x10)
+ 800001c:   00008067            ret
+
+08000020 <notmain>:
+ 8000020:   ff010113            addi    x2,x2,-16 # 20000ff0 <notmain+0x18000fd0>
+ 8000024:   00812423            sw  x8,8(x2)
+ 8000028:   40021437            lui x8,0x40021
+ 800002c:   01840513            addi    x10,x8,24 # 40021018 <notmain+0x38020ff8>
+ 8000030:   00112623            sw  x1,12(x2)
+ 8000034:   00912223            sw  x9,4(x2)
+ 8000038:   01212023            sw  x18,0(x2)
+ 800003c:   fddff0ef            jal x1,8000018 <GET32>
+ 8000040:   01056593            ori x11,x10,16
+
+...
+
+If I use -march=rv32i
+
+But if I add a c which means compressed instructions then
+
+
+Disassembly of section .text:
+
+08000000 <_start>:
+ 8000000:   20001137            lui x2,0x20001
+ 8000004:   010000ef            jal x1,8000014 <notmain>
+ 8000008:   a001                    j   8000008 <_start+0x8>
+
+0800000a <dummy>:
+ 800000a:   8082                    ret
+
+0800000c <PUT32>:
+ 800000c:   c10c                    sw  x11,0(x10)
+ 800000e:   8082                    ret
+
+08000010 <GET32>:
+ 8000010:   4108                    lw  x10,0(x10)
+ 8000012:   8082                    ret
+
+08000014 <notmain>:
+ 8000014:   1141                    addi    x2,x2,-16
+ 8000016:   c422                    sw  x8,8(x2)
+ 8000018:   40021437            lui x8,0x40021
+ 800001c:   01840513            addi    x10,x8,24 # 40021018 <notmain+0x38021004>
+ 8000020:   c606                    sw  x1,12(x2)
+ 8000022:   c226                    sw  x9,4(x2)
+ 8000024:   c04a                    sw  x18,0(x2)
+ 8000026:   37ed                    jal 8000010 <GET32>
+ 8000028:   01056593            ori x11,x10,16
+ 800002c:   01840513            addi    x10,x8,24
+ 8000030:   3ff1                    jal 800000c <PUT32>
+ 8000032:   40011937            lui x18,0x40011
+
+ Even the assembly language sees some compression.  Unlike competing
+ ISAs you cant/wont see just an RV32C you have the base instruction
+ set and in addition support these 16 bit instructions.  Unlike the
+ competition as well you can mix these, the lower bits of all the
+ instructions tell the processor the size/type of the instruction so
+ as the processor consumes the first byte (little endian) it can see
+ that it is a 16 bit instruction and proceed.  Unlike the competing
+ instruction sets when compressed instructions are supported the
+ 32 bit instructions do not need to be aligned (perhaps even with
+ RV32I that is true too but dont see why you would do such a thing).
+
+ 8000030:   3ff1                    jal 800000c <PUT32>
+ 8000032:   40011937            lui x18,0x40011
+
+the jal being 16 bit leaves the following lui not 32 bit aligned,
+no nop or anything needs to be there, this is perfectly fine.
+
+I am not trying to make any kinds of better/best statements RISC-V
+has its pros and cons just like the competition.  Nuf said.
+
+From what I have seen thus far the RISC-V implementations simply start
+execution at an address.  (vs a vector table approach) in the case
+of this processor as far as we are concerned the application flash
+is in the RISC-V address space at 0x08000000.  So we want to build
+our application based at that address
+
+MEMORY
+{
+    rom : ORIGIN = 0x08000000, LENGTH = 0x4000
+    ram : ORIGIN = 0x20000000, LENGTH = 0x4000
+}
+SECTIONS
+{
+    .text : { *(.text*) } > rom
+    .rodata : { *(.rodata*) } > rom
+    .bss : { *(.bss*) } > ram
+}
+
+A note on how I do baremetal, I take a/some shortcuts which make life
+easier IMO.  I have a very simple linker script as seen above far
+simpler than you will normally see.
+
+My C bootstrap looks like this
+
+_start:
+    lui x2,0x20001
+    jal notmain
+    j .
+
+Which is also significantly simpler than what you are used to seeing.
+
+The limitation is that .data doesnt work and .bss is not zeroed (for
+applications like this where you have flash and ram).
+
+So code like this:
+
+
+unsigned int x = 5;
+unsigned int y;
+
+unsigned int fun ( void )
+{
+    ...
+}
+
+x will not be 5 and y will not be 0 when you first come up.  If you
+need them to be then:
+
+unsigned int x;
+unsigned int y;
+
+unsigned int fun ( void )
+{
+    x = 5;
+    y = 0;
+    ...
+}
+
+It burns more flash yes, you are welcome to do your own thing here
+these examples are based on this optimization.  The linker script
+and the marriage between the linker script and the bootstrap and
+both of them being heavily toolchain specific I dont want to mess
+with it.  Instead go with as little toolchain specific code as
+possible.
+
+I point this out so that if you try to modify one of these examples
+in this way, first, hopefully, the toolchain will fail because there
+isnt a .data defined, second your code will fail to work as you desire.
+
+The minimal bootstrap requires that you set the stack pointer and
+branch or call the C entry point.
+
+ _start:
+    lui x2,0x20001
+    jal notmain
+    j .
+
+And that is what this code does.  A lot of MCU implementations assume
+that the entry point does not return.  I allow it to and dont trasn
+the MCU setup if you do.  I also do not use the function named
+main() for historical reasons and perhaps current, that some toolchains
+add extra stuff when they see main().  This avoids that problem and
+also demonstrates that there is no magic about the name.
+
+The global _start is also not required by GNU when building for
+baremetal like this, the linker will complain that it didnt find
+the symbol but will still work.  I try to avoid warnings so I put
+_start in there.
+
+It in no way defines the entry point to the code, that we do by
+knowing how the tools work.  The simple linker script above does not
+call out any functions/objects so the binary is constructed by the
+linker based on the order of items on the command line:
+
+riscv32-none-elf-ld novectors.o notmain.o -T memmap -o notmain.elf
+
+novectors.o comes before notmain.o so it will go into the binary
+first giving code shown above:
+
+Disassembly of section .text:
+
+08000000 <_start>:
+ 8000000:   20001137            lui x2,0x20001
+ 8000004:   010000ef            jal x1,8000014 <notmain>
+ 8000008:   a001                    j   8000008 <_start+0x8>
+
+The code we want as the entry point is at the starting address of
+0x08000000 if you reverse the file names on the command line
+you will see the notmain code first then the _start code at the tail
+end, and that will not boot.
+
+It is a very very good habit after setting up a new project to inspect
+the output of the toolchain before trying to feed it to the chip/board.
+Takes a few seconds to save you from a bricked chip or pulling your
+hair out trying to figure out why the code isnt working.
+
+I personally have had compiler issues with volatile pointers and was
+mentored to force the desired instruction for loads and stores and
+later in my career saw and agreed with that wisdom.  Thus the
+PUT32/GET32 and similar functions you will see in these examples.
+You can use macros to turn these into volatile pointers, but it is
+harder to undo the pointers later.  These abstraction funtions as a
+habit also allow for a great deal of other features from debugging
+to prototyping.
+
+Most MCUs try to save power by not clocking a peripheral by default
+so we read the documentation and see that the gpio block we are using
+is by default not clocked so we enable clocks
+
+    ra=GET32(RCU_APB2EN);
+    ra|=1<<4;
+    PUT32(RCU_APB2EN,ra);
+
+otherwise when you try to talk to that peripheral the processor is
+expected to hang as the peripheral will not respond to the bus request
+and the processor cannot proceed.
+
+Sometimes you see the peripheral is also in reset, but that is not
+always the case, held in reset is not necessarily less power than
+just clock starved.
+
+Once enabled we can then configure the PC13 pin to be an output.
+
+    ra=GET32(GPIOC_CTL1);
+    ra&=(~(0xF<<20));
+    ra|=  (0x1<<20) ;
+    PUT32(GPIOC_CTL1,ra);
+
+Speed is arbitrary we are not going that fast.
+
+Last comment on the code is the use of the dummy() function here
+
+        for(rx=0;rx<100000;rx++) dummy(rx);
+
+Allows for optimized code without having to make rx volatile.  If
+you simply did this:
+
+        for(rx=0;rx<100000;rx++) continue;
+
+Then this line of C would produce no code it is dead code, as it does
+nothing, so the optimizer will remove it.  By calling an external
+function the compiler must produce the sequence of calls to that
+function in the proper order with the proper values, so it generates
+the code.  volatile is not exactly what folks think so best to
+just avoid it here since it is so easy to do so.
+
+See the chip documentation for the registers used and what they do
+and how they are being used in this example.
+
+As shown on the next level up README.  To run this program
+
+press and hold boot0
+press and release reset
+release boot0
+
+dfu-util -a 0 -D notmain.bin -s 0x08000000
+
+reset and release reset.
+
+And the red led should blink.
+
+For this example I have left the intermediate and final binary files
+so that you can try these steps with a known to work binary in case
+you are not able to build a working binary yourself.
+
+Understand that there is no reason to assume that any two compilers
+produce the same instructions as each other from the same source
+code.  They only need to produce code that is functionally correct.
+If you run into trouble different machine instructions may or may
+not be your problem, be careful not to fall into that trap.
+
+To get a warm fuzzy feeling that you are building and running something
+change the count and see the blink rate change
+
+        for(rx=0;rx<200000;rx++) continue;
+
+And or put different values in each loop and see the led on or off
+longer.
+
+Also dont assume that the gpio output being high/on means led on,
+some designs that is true others it is not.  I dont yet have
+schematics for this board.
