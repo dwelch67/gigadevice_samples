@@ -1,0 +1,21 @@
+
+See higher level README files for more information on this product.
+
+Derived from blinker01
+
+Uses the mtime or systick timer built into the bumblebee core.
+
+
+If you slow this down like this
+
+            if((rx&0x100000)!=0) break;
+
+then use a stopwatch/clock of some sort its about 8 seconds
+between led state changes.
+
+16million/8 = 2 million.  And supposedly the mtime timer is sysclk/4
+so that makes 8MHz.  Which is what is found in the documentation, the
+
+Internal 8 MHz RC oscillator (IRC8M)
+
+Which is what we would assume we are starting up on anyway.
