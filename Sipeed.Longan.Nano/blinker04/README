@@ -1,0 +1,23 @@
+
+See higher level README files for more information on this product.
+
+This one is derived from blinker02 and uart04.
+
+The maximum frequency of the AHB, APB2 and APB1 domains is
+108 MHz, 108 MHz, 54 MHz.
+
+The crystal on this board is 8MHz.
+
+54/8 = 6.75
+54/4 = 13.5
+
+It can maybe do 13.5 but I know it can multiply by 6.5 so
+
+5 * 6.5 = 52.  So lets go with 52MHz, and we can keep all the
+domains at the system clock without any divisors.  Everyone runs 52MHz
+basically.
+
+Starting with the internal 8MHz RC clock it blinks the led on/off 3 times
+one second on one second off.  Then sets the clock to 52MHz and uses
+the same number of ticks.  The led now blinks 6.5 times faster
+demonstrating that we sped up the clock.
