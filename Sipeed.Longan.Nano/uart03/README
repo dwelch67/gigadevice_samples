@@ -1,0 +1,7 @@
+
+See higher level README files for more information on this product.
+
+PA9  USART0_TX
+PA10 USART0_RX
+
+Same as uart02, but uses the external 8MHz oscillator, without the PLL.
