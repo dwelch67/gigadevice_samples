@@ -1,0 +1,15 @@
+
+See higher level README files for more information on this product.
+
+This one is derived from blinker02 and uart04.
+
+108/8 = 13.5
+108/4 = 27
+
+The maximum frequency of the AHB, APB2 and APB1 domains is
+108 MHz, 108 MHz, 54 MHz.
+
+Sets the system to 108Mhz except for APB1 which is 54Mhz.
+
+Like blinker04, three blinks using the default 8MHz RC clock then sets
+to 108MHz.

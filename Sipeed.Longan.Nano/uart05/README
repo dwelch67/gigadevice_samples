@@ -1,0 +1,10 @@
+
+See higher level README files for more information on this product.
+
+PA9  USART0_TX
+PA10 USART0_RX
+
+The maximum frequency of the AHB, APB2 and APB1 domains is
+108 MHz, 108 MHz, 54 MHz.
+
+Sets the system to 108Mhz except for APB1 which is 54Mhz.
